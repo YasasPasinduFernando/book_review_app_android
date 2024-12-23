@@ -21,20 +21,35 @@ class ReviewForm extends StatefulWidget {
 
 class _ReviewFormState extends State<ReviewForm> {
   final formKey = GlobalKey<FormState>();
-  final titleController = TextEditingController();
-  final authorController = TextEditingController();
-  final reviewController = TextEditingController();
-  double rating = 5.0;
+  late TextEditingController titleController;
+  late TextEditingController authorController;
+  late TextEditingController reviewController;
+  late double rating;
 
   @override
   void initState() {
     super.initState();
-    if (widget.initialReview != null) {
-      titleController.text = widget.initialReview!.bookTitle;
-      authorController.text = widget.initialReview!.author;
-      reviewController.text = widget.initialReview!.reviewText;
-      rating = widget.initialReview!.rating;
+    initializeControllers();
+  }
+
+  @override
+  void didUpdateWidget(ReviewForm oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // This ensures the form updates when initialReview changes
+    if (widget.initialReview != oldWidget.initialReview) {
+      initializeControllers();
     }
+  }
+
+  void initializeControllers() {
+    // Initialize controllers with initial values or empty strings
+    titleController = TextEditingController(text: widget.initialReview?.bookTitle ?? '');
+    authorController = TextEditingController(text: widget.initialReview?.author ?? '');
+    reviewController = TextEditingController(text: widget.initialReview?.reviewText ?? '');
+    rating = widget.initialReview?.rating ?? 5.0;
+    
+    // Force rebuild to update the UI
+    setState(() {});
   }
 
   @override
@@ -49,12 +64,12 @@ class _ReviewFormState extends State<ReviewForm> {
     if (!formKey.currentState!.validate()) return;
 
     final review = BookReview(
-      id: widget.initialReview?.id,
+      id: widget.initialReview?.id,  // Preserve the original ID if editing
       bookTitle: titleController.text,
       author: authorController.text,
       rating: rating,
       reviewText: reviewController.text,
-      dateAdded: DateTime.now(),
+      dateAdded: widget.initialReview?.dateAdded ?? DateTime.now(),
     );
 
     widget.onSubmit(review);
@@ -68,7 +83,13 @@ class _ReviewFormState extends State<ReviewForm> {
         child: Form(
           key: formKey,
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Text(
+                widget.initialReview != null ? 'Edit Review' : 'Add New Review',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+              const SizedBox(height: 16),
               TextFormField(
                 controller: titleController,
                 decoration: const InputDecoration(
@@ -87,16 +108,23 @@ class _ReviewFormState extends State<ReviewForm> {
                 validator: Validators.validateAuthor,
               ),
               const SizedBox(height: 16),
-              RatingBar.builder(
-                initialRating: rating,
-                minRating: 1,
-                direction: Axis.horizontal,
-                itemCount: 5,
-                itemBuilder: (context, _) => const Icon(
-                  Icons.star,
-                  color: Colors.amber,
-                ),
-                onRatingUpdate: (value) => rating = value,
+              Row(
+                children: [
+                  Text('Rating: ', style: Theme.of(context).textTheme.titleMedium),
+                  RatingBar.builder(
+                    initialRating: rating,
+                    minRating: 1,
+                    direction: Axis.horizontal,
+                    itemCount: 5,
+                    itemBuilder: (context, _) => const Icon(
+                      Icons.star,
+                      color: Colors.amber,
+                    ),
+                    onRatingUpdate: (value) {
+                      setState(() => rating = value);
+                    },
+                  ),
+                ],
               ),
               const SizedBox(height: 16),
               TextFormField(
@@ -115,16 +143,17 @@ class _ReviewFormState extends State<ReviewForm> {
                     child: ElevatedButton(
                       onPressed: submitForm,
                       child: Text(
-                        widget.initialReview != null
-                            ? 'Update Review'
-                            : 'Add Review',
+                        widget.initialReview != null ? 'Update Review' : 'Add Review',
                       ),
                     ),
                   ),
                   if (widget.initialReview != null) ...[
                     const SizedBox(width: 8),
                     TextButton(
-                      onPressed: widget.onCancel,
+                      onPressed: () {
+                        widget.onCancel();
+                        initializeControllers(); // Reset form when canceling
+                      },
                       child: const Text('Cancel'),
                     ),
                   ],
