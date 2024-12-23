@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../models/book_review.dart';
 import '../services/database_service.dart';
 import '../widgets/review_form.dart';
@@ -81,8 +82,39 @@ class _BookReviewPageState extends State<BookReviewPage> {
 
   void showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.red)
+        SnackBar(content: Text(message), backgroundColor: Colors.red));
+  }
+
+  Future<void> _launchEmail() async {
+    final Uri emailLaunchUri = Uri(
+      scheme: 'mailto',
+      path: 'yasaspasindufernando@gmail.com',
     );
+
+    try {
+      if (await canLaunchUrl(emailLaunchUri)) {
+        await launchUrl(emailLaunchUri);
+      } else {
+        showError('Could not launch email client');
+      }
+    } catch (e) {
+      showError('Failed to open email');
+    }
+  }
+
+  Future<void> _launchGitHub() async {
+    final Uri url = Uri.parse(
+        'https://github.com/YasasPasinduFernando/book_review_app_android');
+
+    try {
+      if (await canLaunchUrl(url)) {
+        await launchUrl(url, mode: LaunchMode.externalApplication);
+      } else {
+        showError('Could not launch GitHub');
+      }
+    } catch (e) {
+      showError('Failed to open GitHub');
+    }
   }
 
   @override
@@ -106,11 +138,13 @@ class _BookReviewPageState extends State<BookReviewPage> {
                       onCancel: resetForm,
                     ),
                     const SizedBox(height: 16),
-                    ...reviews.map((review) => ReviewCard(
-                      review: review,
-                      onEdit: startEditing,
-                      onDelete: deleteReview,
-                    )).toList(),
+                    ...reviews
+                        .map((review) => ReviewCard(
+                              review: review,
+                              onEdit: startEditing,
+                              onDelete: deleteReview,
+                            ))
+                        .toList(),
                   ],
                 ),
               ),
@@ -129,15 +163,13 @@ class _BookReviewPageState extends State<BookReviewPage> {
               children: [
                 IconButton(
                   icon: const Icon(Icons.email, color: Colors.white),
-                  onPressed: () {
-                    // Add email functionality
-                  },
+                  onPressed: _launchEmail,
+                  tooltip: 'Send Email',
                 ),
                 IconButton(
                   icon: const Icon(Icons.code, color: Colors.white),
-                  onPressed: () {
-                    // Add GitHub link functionality
-                  },
+                  onPressed: _launchGitHub,
+                  tooltip: 'View Source Code',
                 ),
               ],
             ),
