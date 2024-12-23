@@ -1,6 +1,6 @@
 # 📚 Book Review App
 
-A Flutter-based mobile application for reviewing and rating books. Users can effortlessly add, edit, and manage book reviews with a clean, intuitive interface. This app uses **Monopoly DB** for local database management and provides a seamless experience for book enthusiasts.
+A Flutter-based mobile application for reviewing and rating books. This app uses **MongoDB (remote)** as the database backend, ensuring reliable and scalable data storage. Users can effortlessly add, edit, and manage book reviews with a clean, intuitive interface.
 
 ---
 
@@ -9,8 +9,8 @@ A Flutter-based mobile application for reviewing and rating books. Users can eff
 - **Add Reviews:** Add books with title, author, rating, and a short review.
 - **Edit Reviews:** Modify existing reviews and update details.
 - **Delete Reviews:** Remove unwanted book reviews from the list.
+- **Remote Database:** All data is stored securely in **MongoDB (remote)** for easy access.
 - **Responsive Design:** Optimized for all Android screen sizes.
-- **Local Database:** Built with **Monopoly DB** for efficient data storage.
 
 ---
 
@@ -23,6 +23,7 @@ Follow these steps to run the app on your local machine.
 - Flutter SDK installed. ([Install Flutter](https://docs.flutter.dev/get-started/install))
 - Code editor like [Android Studio](https://developer.android.com/studio) or [VS Code](https://code.visualstudio.com/).
 - An Android emulator or physical device connected for testing.
+- Access to a **MongoDB** database. You can create one using [MongoDB Atlas](https://www.mongodb.com/cloud/atlas).
 
 ### Installation
 
